@@ -30,10 +30,12 @@ jobs:
 
       - name: Initialize Terraform
         run: terraform init
-
+        working-directory: terraform  
       - name: Terraform Plan
         run: terraform plan
+        working-directory: terraform  
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve
+        working-directory: terraform  
