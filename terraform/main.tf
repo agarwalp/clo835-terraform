@@ -28,7 +28,7 @@ resource "aws_subnet" "main_subnet" {
 resource "aws_security_group" "ec2_sg" {
   vpc_id = aws_vpc.main_vpc.id
 
-  # Allow SSH
+  #SSH
   ingress {
     from_port   = 22
     to_port     = 22
@@ -36,7 +36,7 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Allow HTTP
+  #HTTP
   ingress {
     from_port   = 80
     to_port     = 80
@@ -44,15 +44,23 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Allow Application Ports (8080, 8081, 8082, 8083)
+  # App Ports (8080, 8081, 8082, 8083)
   ingress {
     from_port   = 8080
     to_port     = 8083
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  
+  #ICMP
+  ingress {
+    from_port   = -1  # ICMP has no specific port
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]  # Allow ping from any IP
+  }
 
-  # Allow all outbound traffic
+  #all outbound traffic
   egress {
     from_port   = 0
     to_port     = 0
