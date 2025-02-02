@@ -4,8 +4,8 @@ provider "aws" {
 
 # Create VPC
 resource "aws_vpc" "main_vpc" {
-  cidr_block = var.vpc_cidr
-  enable_dns_support = true
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
   enable_dns_hostnames = true
 
   tags = {
@@ -15,8 +15,8 @@ resource "aws_vpc" "main_vpc" {
 
 # Create Subnet
 resource "aws_subnet" "main_subnet" {
-  vpc_id     = aws_vpc.main_vpc.id
-  cidr_block = var.subnet_cidr
+  vpc_id                  = aws_vpc.main_vpc.id
+  cidr_block              = var.subnet_cidr
   map_public_ip_on_launch = true
 
   tags = {
@@ -67,22 +67,22 @@ resource "aws_security_group" "ec2_sg" {
 
 # Create ECR Repository for MySQL
 resource "aws_ecr_repository" "mysql_repo" {
-  name = "mysqlRepo"
+  name = "mysql-repo"
 }
 
 # Create ECR Repository for WebApp
 resource "aws_ecr_repository" "webapp_repo" {
-  name = "webappRepo"
+  name = "webapp-repo"
 }
 
 # Create EC2 Instance
 resource "aws_instance" "app_instance" {
-  ami           = "ami-0c55b159cbfafe1f0"  # Amazon Linux 2 AMI
-  instance_type = "t2.micro"
-  key_name      = var.key_name
-  subnet_id     = aws_subnet.main_subnet.id
+  ami                         = "ami-0241b1d769b029352" # Amazon Linux 2 AMI
+  instance_type               = "t2.micro"
+  key_name                    = var.key_name
+  subnet_id                   = aws_subnet.main_subnet.id
   associate_public_ip_address = true
-  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+  vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
 
   tags = {
     Name = "MyAppServer"
