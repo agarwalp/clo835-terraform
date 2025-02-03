@@ -52,15 +52,15 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   
-  #ICMP
+  #ICMP (Ping)
   ingress {
-    from_port   = -1  # ICMP has no specific port
+    from_port   = -1  
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = ["0.0.0.0/0"]  # Allow ping from any IP
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
-  #all outbound traffic
+  # Allow all outbound traffic
   egress {
     from_port   = 0
     to_port     = 0
@@ -85,9 +85,9 @@ resource "aws_ecr_repository" "webapp_repo" {
 
 # Create EC2 Instance
 resource "aws_instance" "app_instance" {
-  ami                         = "ami-0241b1d769b029352" # Amazon Linux 2 AMI
+  ami                         = "ami-0241b1d769b029352" 
   instance_type               = "t2.micro"
-  key_name                    = var.key_name
+  key_name                    = aws_key_pair.my_key.key_name  
   subnet_id                   = aws_subnet.main_subnet.id
   associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
@@ -95,4 +95,10 @@ resource "aws_instance" "app_instance" {
   tags = {
     Name = "MyAppServer"
   }
+}
+
+# Create an AWS Key Pair
+resource "aws_key_pair" "my_key" {
+  key_name   = "my_generated_key"
+  public_key = file("${path.module}/my_generated_key.pub") 
 }
