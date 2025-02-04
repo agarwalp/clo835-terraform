@@ -13,6 +13,36 @@ resource "aws_vpc" "main_vpc" {
   }
 }
 
+# Create Internet Gateway (IGW)
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  tags = {
+    Name = "IGW"
+  }
+}
+
+# Create Route Table for Public Access
+resource "aws_route_table" "public_rt" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  # Route all outbound traffic to the Internet Gateway
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  tags = {
+    Name = "PublicRouteTable"
+  }
+}
+
+# Associate Subnet with the Public Route Table
+resource "aws_route_table_association" "public_assoc" {
+  subnet_id      = aws_subnet.main_subnet.id
+  route_table_id = aws_route_table.public_rt.id
+}
+
 # Create Subnet
 resource "aws_subnet" "main_subnet" {
   vpc_id                  = aws_vpc.main_vpc.id
@@ -28,7 +58,7 @@ resource "aws_subnet" "main_subnet" {
 resource "aws_security_group" "ec2_sg" {
   vpc_id = aws_vpc.main_vpc.id
 
-  #SSH
+  # SSH
   ingress {
     from_port   = 22
     to_port     = 22
@@ -36,7 +66,7 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  #HTTP
+  # HTTP
   ingress {
     from_port   = 80
     to_port     = 80
@@ -52,7 +82,7 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   
-  #ICMP (Ping)
+  # ICMP
   ingress {
     from_port   = -1  
     to_port     = -1
@@ -87,7 +117,7 @@ resource "aws_ecr_repository" "webapp_repo" {
 resource "aws_instance" "app_instance" {
   ami                         = "ami-0241b1d769b029352" 
   instance_type               = "t2.micro"
-  key_name                    = aws_key_pair.mykey.key_name  
+  key_name                    = aws_key_pair.my-key.key_name  
   subnet_id                   = aws_subnet.main_subnet.id
   associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
@@ -98,7 +128,7 @@ resource "aws_instance" "app_instance" {
 }
 
 # Create an AWS Key Pair
-resource "aws_key_pair" "mykey" {
-  key_name   = "mypubkey"
-  public_key = file("${path.module}/mypubkey.pub") 
+resource "aws_key_pair" "my-key" {
+  key_name   = "mykey"
+  public_key = file("${path.module}/mykey.pub") 
 }
